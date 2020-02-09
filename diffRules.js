@@ -45,8 +45,6 @@ module.exports = {
     '*': (args, meta) => {
         const { powers } = meta
 
-        let str = ''
-
         const productDerivative = factors => {
             const addendsStrings = []
             
@@ -74,13 +72,13 @@ module.exports = {
             // all are multiplications
             return [
                 productDerivative(args),
-                `Using generalized power rule`
+                `Using generalized product rule`
             ]
         } else if( powers.every(power => !power) ) {
             // all are divisors
             return [
                 `1 / (${ productDerivative(args) })`,
-                `Using generalized power rule on divisors`
+                `Using generalized product rule on divisors`
             ]
         } else {
             // mixed
