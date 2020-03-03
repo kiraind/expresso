@@ -32,7 +32,7 @@ http.createServer(function (request, response) {
             response.write(data)
             response.end()
         } catch(e) {
-            // console.log(e)
+            console.log(e)
 
             response.writeHead(200, { 'Content-Type': 'application/json' })
             response.write(`{
@@ -95,6 +95,10 @@ function makeResponse(rawInput) {
     let comment = 'Ввод'
 
     do {
+        while(expression.normalizeStep());
+
+        console.log(expression)
+
         steps.push({
             comment,
             step,
@@ -104,8 +108,9 @@ function makeResponse(rawInput) {
         step += 1
     } while(
         comment = expression.simplifyStep() ||
+                  expression.evaluateStep() ||
                   expression.differentiateStep()
     )
 
     return steps
-}
+} 

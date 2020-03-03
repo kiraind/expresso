@@ -380,6 +380,169 @@ class Node {
         }
     }
 
+    normalizeStep() {
+        let comment = null
+
+        const search = node => {
+            if(comment) {
+                return
+            }
+
+            let newExpr
+
+            if(
+                node.type === TYPES.CONSTANT ||
+                node.type === TYPES.VARIABLE
+            ) {
+                return
+            } else if(node.type === TYPES.MULTIPLY || node.type === TYPES.ADD) {
+                if(node.args.length === 1) {
+                    comment = 'Normalize'
+                    newExpr = node.args[0].toString()
+                }
+            }
+
+            if(newExpr) {
+                const newNode = new Node(newExpr)
+
+                node.type = newNode.type
+                node.args = newNode.args
+                node.meta = newNode.meta
+            } else {
+                // go in depth
+                for(let i = 0; i < node.args.length; i += 1) {
+                    const arg = node.args[i]
+
+                    search(arg)
+
+                    if(comment) {
+                        return
+                    }
+                }
+            }
+        }
+
+        search(this)
+
+        return comment
+    }
+
+    evaluateStep() {
+        let comment = null
+
+        const search = node => {
+            if(comment) {
+                return
+            }
+
+            let newExpr
+
+            if(
+                node.type === TYPES.CONSTANT ||
+                node.type === TYPES.VARIABLE
+            ) {
+                return
+            } else if(node.type === TYPES.MULTIPLY || node.type === TYPES.ADD) {
+                if(
+                    // count constants
+                    node.args.reduce(
+                        (cnt, arg) => cnt + (arg.type === TYPES.CONSTANT ? 1 : 0),
+                        0
+                    ) >= 2
+                ) {
+                    if(node.type === TYPES.ADD) {
+                        let acc = 0
+                        
+                        const args  = []
+                        const signs = []
+
+                        for(let i = 0; i < node.args.length; i += 1) {
+                            const arg = node.args[i]
+
+                            if(arg.type === TYPES.CONSTANT) {
+                                // if addition
+                                if(node.meta.signs[i]) {
+                                    acc += arg.meta.value
+                                } else {
+                                    acc -= arg.meta.value
+                                }
+                            } else {
+                                args.push(arg)
+                                signs.push(node.meta.signs[i])
+                            }
+                        }
+
+                        args.push(
+                            new Node( `${Math.abs(acc).toString()}` )
+                        )
+
+                        signs.push( acc > 0 )
+
+                        node.args = args
+                        node.meta.signs = signs                    
+                        comment = 'Сложение / вычитание'
+                        return
+                    } else if(node.type === TYPES.MULTIPLY) {
+                        let acc = 1
+                        
+                        const args   = []
+                        const powers = []
+
+                        for(let i = 0; i < node.args.length; i += 1) {
+                            const arg = node.args[i]
+
+                            if(arg.type === TYPES.CONSTANT) {
+                                // if over
+                                if(node.meta.powers[i]) {
+                                    acc *= arg.meta.value
+                                } else {
+                                    acc /= arg.meta.value
+                                }
+                            } else {
+                                args.push(arg)
+                                powers.push(node.meta.powers[i])
+                            }
+                        }
+
+                        args.push(
+                            new Node( `${acc.toString()}` )
+                        )
+
+                        powers.push( true )
+
+                        node.args = args
+                        node.meta.powers = powers                    
+                        comment = 'Умножение / деление'
+                        return
+                    }
+                }
+            }
+
+            if(newExpr) {
+                const newNode = new Node(newExpr)
+
+                node.type = newNode.type
+                node.args = newNode.args
+                node.meta = newNode.meta
+            } else {
+                // go in depth
+                for(let i = 0; i < node.args.length; i += 1) {
+                    const arg = node.args[i]
+
+                    search(arg)
+
+                    if(comment) {
+                        return
+                    }
+                }
+            }
+        }
+
+        search(this)
+
+        return comment
+    }
+
     simplifyStep() {
         let comment = null
 

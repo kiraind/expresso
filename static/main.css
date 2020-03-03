@@ -12,10 +12,6 @@ header {
     background-color: #6eeb43;
 }
 
-header > div {
-    /* background-color: red; */
-}
-
 h1 {
     font-family: 'Roboto Mono';
     margin: 0;
