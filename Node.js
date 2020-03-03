@@ -436,6 +436,17 @@ class Node {
                         return
                     }
                 }
+            } else if(
+                node.type === TYPES.NEGATE &&
+                node.args[0].type === TYPES.CONSTANT
+            ) {
+                node.type = TYPES.CONSTANT
+                node.meta = {
+                    value: -node.args[0].meta.value
+                }
+
+                comment = 'Normalize: negate number'
+                return
             }
 
             if(newExpr) {
@@ -892,6 +903,10 @@ class Node {
                 Math.round(this.meta.value * 1000) / 1000
             ).toString()
         } else if(this.type === TYPES.FUNCTION) {
+            if(this.meta.name === 'sqrt') {
+                return `\\sqrt{${this.args[0].toKatex()}}`
+            }
+
             return `${this.meta.name}(${this.args[0].toKatex()})`
         } else if(this.type === TYPES.DERIVATIVE) {
             return `(${this.args[0].toKatex()})'`
