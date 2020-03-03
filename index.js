@@ -28,7 +28,10 @@ async function main() {
         console.log()
 
         step += 1
-    } while( comment = expression.differentiateStep() )
+    } while(
+        comment = expression.simplifyStep() ||
+                  expression.differentiateStep()
+    )
 }
 
 main().catch(console.log)

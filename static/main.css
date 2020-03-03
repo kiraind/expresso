@@ -1,0 +1,97 @@
+body {
+    margin: 0;
+
+    font-family: Roboto, sans-serif;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    background-color: #6eeb43;
+}
+
+header > div {
+    /* background-color: red; */
+}
+
+h1 {
+    font-family: 'Roboto Mono';
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+    font-size: 35px;
+    color: black;
+}
+
+
+
+main {
+    width: calc(100% - 20px);
+    max-width: 900px;
+    margin: 0 auto;
+    margin-top: -21px;
+}
+
+#expression-inpt {
+    width: 100%;
+    max-width: calc(100% - 10px*2);
+    outline: none;
+    font-size: 20px;
+    line-height: 30px;
+    padding: 5px 10px;
+    border: 1px solid #8c8c8c;
+    border-radius: 3px;
+}
+
+#error {
+    border: 1px solid red;
+    color: red;
+    margin-top: 20px;
+    padding: 10px 10px;
+    border-radius: 3px;
+}
+#error.hidden {
+    display: none;
+}
+
+#solution {
+    border: 1px solid #6deb43;
+    margin-top: 20px;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+#solution:empty {
+    display: none;
+ }
+
+
+#steps {
+    margin-top: 30px;
+}
+
+.step {
+    margin-bottom: 30px;
+}
+
+.step-show {
+    display: flex;
+    align-items: center;
+    
+}
+
+.step-show-id {
+    width: 100px;
+    font-size: 16px;
+    color: #a2a2a2;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.step-desc-p {
+    margin: 0 0 0 100px;
+    font-size: 18px;
+    margin-bottom: 10px;
+}

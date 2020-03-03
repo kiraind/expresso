@@ -364,8 +364,9 @@ class Node {
             this.args = node.args
             this.meta = node.meta
         } else {
+            console.log('"' + node + '"')
             console.log( processed )
-            throw new Error()
+            throw new Error('Parsing error')
         }
     }
 
@@ -387,21 +388,97 @@ class Node {
                 return
             }
 
+            let newExpr
+
             if(
                 node.type === TYPES.CONSTANT ||
                 node.type === TYPES.VARIABLE
             ) {
                 return
+            } else if(node.type === TYPES.MULTIPLY) {
+                if(
+                    // there are zeros
+                    node.args.some( (arg, i) =>
+                        node.meta.powers[i] && // over
+                        arg.type === TYPES.CONSTANT &&
+                        arg.meta.value === 0
+                    )
+                ) {
+                    newExpr = '0'
+                    comment = 'If one of factors is zero then the product is zero'
+                } else if(
+                    // there are ones
+                    node.args.some( arg =>
+                        arg.type === TYPES.CONSTANT &&
+                        arg.meta.value === 1
+                    )
+                ) {
+                    const args = [] 
+                    const powers = []
+
+                    for(let i = 0; i < node.args.length; i += 1) {
+                        const arg = node.args[i]
+                        const power = node.meta.powers[i]
+
+                        if(arg.type === TYPES.CONSTANT && arg.meta.value === 1) {
+                            // skip
+                        } else {
+                            args.push(arg)
+                            powers.push(power)
+                        }
+                    }
+
+                    node.args = args
+                    node.meta.powers = powers                    
+                    comment = 'Anything multiplied or divided by 1 stays itself'
+                    return
+                }
+            } else if(node.type === TYPES.ADD) {
+                if(
+                    // there are zeros
+                    node.args.some( arg =>
+                        arg.type === TYPES.CONSTANT &&
+                        arg.meta.value === 0
+                    )
+                ) {
+                    const args = [] 
+                    const signs = []
+
+                    for(let i = 0; i < node.args.length; i += 1) {
+                        const arg = node.args[i]
+                        const sign = node.meta.signs[i]
+
+                        if(arg.type === TYPES.CONSTANT && arg.meta.value === 0) {
+                            // skip
+                        } else {
+                            args.push(arg)
+                            signs.push(sign)
+                        }
+                    }
+
+                    node.args = args
+                    node.meta.signs = signs                    
+                    comment = 'Anything added or subtracted with 0 stays itself'
+                    return
+                }
             }
 
-            // go in depth
-            for(let i = 0; i < node.args.length; i += 1) {
-                const arg = node.args[i]
+            if(newExpr) {
+                const newNode = new Node(newExpr)
 
-                search(arg)
+                node.type = newNode.type
+                node.args = newNode.args
+                node.meta = newNode.meta
+            } else {
+                // go in depth
+                for(let i = 0; i < node.args.length; i += 1) {
+                    const arg = node.args[i]
 
-                if(comment) {
-                    return
+                    search(arg)
+
+                    if(comment) {
+                        return
+                    }
                 }
             }
         }
@@ -524,6 +601,13 @@ class Node {
             let s = ''
 
             this.args.forEach( (arg, i) => {
+                if(
+                    // all below
+                    this.meta.powers.every(pwr => !pwr)
+                ) {
+                    s += '1 '
+                }
+
                 if( !this.meta.powers[i] ) {
                     // div
                     s += '/ '
@@ -542,6 +626,75 @@ class Node {
             })
 
             return s
+        } else {
+            return '???'
+        }
+    }
+
+    toKatex() {
+        if(this.type === TYPES.VARIABLE) {
+            return this.meta.name
+        } else if(this.type === TYPES.CONSTANT) {
+            return (
+                Math.round(this.meta.value * 1000) / 1000
+            ).toString()
+        } else if(this.type === TYPES.FUNCTION) {
+            return `${this.meta.name}(${this.args[0].toKatex()})`
+        } else if(this.type === TYPES.DERIVATIVE) {
+            return `(${this.args[0].toKatex()})'`
+        } else if(this.type === TYPES.NEGATE) {
+            const arg = this.args[0]
+            if( arg.type === TYPES.ADD ) {
+                return `-(${arg.toKatex()})`
+            } else {
+                return `-${arg.toKatex()}`
+            }
+        } else if(this.type === TYPES.POWER) {
+            const arg1 = this.args[0]
+            const arg2 = this.args[1]
+
+            const arg1s = arg1.type <= TYPES.POWER ? `(${arg1.toKatex()})` : arg1.toKatex()
+            const arg2s = arg2.type <  TYPES.POWER ? `(${arg2.toKatex()})` : arg2.toKatex()
+
+            return `${arg1s}^{${arg2s}}`
+        } else if(this.type === TYPES.ADD) {
+            let s = ''
+
+            this.args.forEach( (arg, i) => {
+                if( !this.meta.signs[i] ) {
+                    // neg
+                    s += '- '
+                } else {
+                    //  pos
+                    if(i !== 0) {
+                        s += '+ '
+                    }
+                }
+
+                s += arg.toKatex()
+
+                if(i !== this.args.length - 1) {
+                    s += ' '
+                }
+            })
+
+            return s
+        } else if(this.type === TYPES.MULTIPLY) {
+            const gs = this.args.filter(
+                (_, i) =>  this.meta.powers[i]
+            ).map(arg => arg.toKatex())
+
+            const hs = this.args.filter(
+                (_, i) => !this.meta.powers[i]
+            ).map(arg => arg.toKatex())
+
+            if(gs.length > 0 && hs.length > 0) {
+                return `\\frac{${gs.join(' * ')}}{${hs.join(' * ')}}`
+            } else if(gs.length > 0 && hs.length === 0) {
+                return gs.join(' * ')
+            } else {
+                return `\\frac{1}{${hs.join(' * ')}}`
+            }
         } else {
             return '???'
         }
