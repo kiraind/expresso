@@ -856,11 +856,11 @@ class Node {
             ).map(arg => arg.toKatex())
 
             if(gs.length > 0 && hs.length > 0) {
-                return `\\frac{${gs.join(' * ')}}{${hs.join(' * ')}}`
+                return `\\frac{${gs.join(' \\cdot ')}}{${hs.join(' \\cdot ')}}`
             } else if(gs.length > 0 && hs.length === 0) {
-                return gs.join(' * ')
+                return gs.join(' \\cdot ')
             } else {
-                return `\\frac{1}{${hs.join(' * ')}}`
+                return `\\frac{1}{${hs.join(' \\cdot ')}}`
             }
         } else {
             return '???'
