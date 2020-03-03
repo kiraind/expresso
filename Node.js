@@ -403,6 +403,38 @@ class Node {
                         comment = 'Normalize'
                         newExpr = node.args[0].toString()
                     }
+                } else {
+                    // merge nested multiplications
+                    if(
+                        node.type === TYPES.MULTIPLY &&
+                        node.args.some(arg => arg.type === TYPES.MULTIPLY)
+                    ) {
+                        const args   = []
+                        const powers = []
+
+                        for(let i = 0; i < node.args.length; i += 1) {
+                            const arg   = node.args[i]
+                            const power = node.meta.powers[i]
+        
+                            if(arg.type !== TYPES.MULTIPLY) {
+                                args.push(arg)
+                                powers.push(power)
+                            } else {
+                                arg.args.forEach( (nestedArg, i) => {
+                                    const nestedArgPower = arg.meta.powers[i]
+
+                                    args.push(nestedArg)
+                                    powers.push(power ? nestedArgPower : !nestedArgPower)
+                                })
+                            }
+                        }
+
+                        node.args = args
+                        node.meta.powers = powers
+
+                        comment = 'Normalize: merge nested multiplications'
+                        return
+                    }
                 }
             }
 
@@ -627,6 +659,33 @@ class Node {
                     node.meta.signs = signs                    
                     comment = 'Сложение с нулем можно опустить'
                     return
+                } else if(node.args.some(arg => arg.type === TYPES.ADD)) {
+                    // merge nested additions
+                    const args   = []
+                    const signs = []
+
+                    for(let i = 0; i < node.args.length; i += 1) {
+                        const arg   = node.args[i]
+                        const sign  = node.meta.signs[i]
+    
+                        if(arg.type !== TYPES.ADD) {
+                            args.push(arg)
+                            signs.push(sign)
+                        } else {
+                            arg.args.forEach( (nestedArg, i) => {
+                                const nestedArgSign = arg.meta.signs[i]
+
+                                args.push(nestedArg)
+                                signs.push(sign ? nestedArgSign : !nestedArgSign)
+                            })
+                        }
+                    }
+
+                    node.args = args
+                    node.meta.signs = signs
+
+                    comment = 'Раскрытие скобок'
+                    return
                 }
             } else if(node.type === TYPES.POWER) {
                 // console.log(node.args)
@@ -783,7 +842,7 @@ class Node {
                     }
                 }
 
-                s += arg.toString()
+                s += arg.type === TYPES.ADD ? `(${arg.toString()})` : arg.toString()
 
                 if(i !== this.args.length - 1) {
                     s += ' '
@@ -865,7 +924,7 @@ class Node {
                     }
                 }
 
-                s += arg.toKatex()
+                s += arg.type === TYPES.ADD ? `(${arg.toKatex()})` : arg.toKatex()
 
                 if(i !== this.args.length - 1) {
                     s += ' '
