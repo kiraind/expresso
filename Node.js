@@ -397,8 +397,12 @@ class Node {
                 return
             } else if(node.type === TYPES.MULTIPLY || node.type === TYPES.ADD) {
                 if(node.args.length === 1) {
-                    comment = 'Normalize'
-                    newExpr = node.args[0].toString()
+                    if(node.type === TYPES.MULTIPLY && !node.meta.powers[0]) {
+                        // skip
+                    } else {
+                        comment = 'Normalize'
+                        newExpr = node.args[0].toString()
+                    }
                 }
             }
 
