@@ -1,10 +1,10 @@
 // rules of differentiation
 module.exports = {
-    'const': (args, meta) => [`0`, `Derivative of a constant is 0`],
-    'var':   (args, meta) => [`1`, `Derivative of a variable is 1`],
+    'const': (args, meta) => [`0`, `Производная константы равна нулю`],
+    'var':   (args, meta) => [`1`, `Производная переменной равна единице`],
     'neg':   (args, meta) => [
         `-((${args[0].toString()})')`,
-        `Converting derivative of negation to negation of derivative`
+        `Производная минуса это минус производной`
     ],
 
     '^': (args, meta) => {
@@ -13,7 +13,7 @@ module.exports = {
 
         return [
             `(${h})  *  ((${g})^(${h} - 1))  *  ((${g})')   +   ((${g})^(${h}))  *  ln( ${g} )  *  (${h})'`,
-            `Using derivative of power formula`
+            `Формула производной возведения в степень`
         ]
     },
     '+': (args, meta) => {
@@ -39,7 +39,7 @@ module.exports = {
 
         return [
             str,
-            `Converting derivative of a sum to the sum of the derivatives`
+            `Производная суммы равна сумме производных`
         ]
     },
     '*': (args, meta) => {
@@ -72,13 +72,13 @@ module.exports = {
             // all are multiplications
             return [
                 productDerivative(args),
-                `Using generalized product rule`
+                `Обобщенная формула правила произведения`
             ]
         } else if( powers.every(power => !power) ) {
             // all are divisors
             return [
                 `1 / (${ productDerivative(args) })`,
-                `Using generalized product rule on divisors`
+                `Обобщенная формула правила произведения на делителе`
             ]
         } else {
             // mixed
@@ -99,7 +99,7 @@ module.exports = {
             // quotient rule
             return [
                 `( (${g})' * ${h} - ${g} * (${h})' ) / ( (${h})^2 )`,
-                `Using quotient rule`
+                `Формула производной дроби`
             ]
         }
     },
@@ -107,48 +107,48 @@ module.exports = {
     // functions table
     'exp': (args, meta) => [
         `exp(${args[0].toString()}) * (${args[0].toString()})'`,
-        `Using table derivative (exp) and chain rule`
+        `Табличная производная exp и домножение на аргумент`
     ],
     'ln': (args, meta) => [
         `(${args[0].toString()})' / (${args[0].toString()})`,
-        `Using table derivative (ln) and chain rule`
+        `Табличная производная ln и домножение на аргумент`
     ],
     'sqrt': (args, meta) => [
         `(${args[0].toString()})' / 2 / sqrt(${args[0].toString()})`,
-        `Using table derivative (sqrt) and chain rule`
+        `Табличная производная sqrt и домножение на аргумент`
     ],
 
     'sin': (args, meta) => [
         `cos(${args[0].toString()}) * (${args[0].toString()})'`,
-        `Using table derivative (sin) and chain rule`
+        `Табличная производная sin и домножение на аргумент`
     ],
     'cos': (args, meta) => [
         `-sin(${args[0].toString()}) * (${args[0].toString()})'`,
-        `Using table derivative (cos) and chain rule`
+        `Табличная производная cos и домножение на аргумент`
     ],
     'tg': (args, meta) => [
         `(${args[0].toString()})' / cos(${args[0].toString()})^2`,
-        `Using table derivative (tg) and chain rule`
+        `Табличная производная tg и домножение на аргумент`
     ],
     'ctg': (args, meta) => [
         `-(${args[0].toString()})' / sin(${args[0].toString()})^2`,
-        `Using table derivative (ctg) and chain rule`
+        `Табличная производная ctg и домножение на аргумент`
     ],
 
     'arcsin': (args, meta) => [
         `(${args[0].toString()})' / sqrt(1 - (${args[0].toString()})^2)`,
-        `Using table derivative (arcsin) and chain rule`
+        `Табличная производная arcsin и домножение на аргумент`
     ],
     'arccos': (args, meta) => [
         `-(${args[0].toString()})' / sqrt(1 - (${args[0].toString()})^2)`,
-        `Using table derivative (arccos) and chain rule`
+        `Табличная производная arccos и домножение на аргумент`
     ],
     'arctg': (args, meta) => [
         `(${args[0].toString()})' / (1 + (${args[0].toString()})^2)`,
-        `Using table derivative (arctg) and chain rule`
+        `Табличная производная arctg и домножение на аргумент`
     ],
     'arcctg': (args, meta) => [
         `-(${args[0].toString()})' / (1 + (${args[0].toString()})^2)`,
-        `Using table derivative (arcctg) and chain rule`
+        `Табличная производная arcctg и домножение на аргумент`
     ],
 }

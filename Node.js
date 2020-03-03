@@ -568,7 +568,7 @@ class Node {
                     )
                 ) {
                     newExpr = '0'
-                    comment = 'If one of factors is zero then the product is zero'
+                    comment = 'Если один из множителей равен нулю, то и прозиведение равно нулю'
                 } else if(
                     // there are ones
                     node.args.some( arg =>
@@ -593,7 +593,7 @@ class Node {
 
                     node.args = args
                     node.meta.powers = powers                    
-                    comment = 'Anything multiplied or divided by 1 stays itself'
+                    comment = 'Умножение или деление на единицу можно опустить'
                     return
                 }
             } else if(node.type === TYPES.ADD) {
@@ -621,7 +621,7 @@ class Node {
 
                     node.args = args
                     node.meta.signs = signs                    
-                    comment = 'Anything added or subtracted with 0 stays itself'
+                    comment = 'Сложение с нулем можно опустить'
                     return
                 }
             }
