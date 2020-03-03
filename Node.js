@@ -628,6 +628,33 @@ class Node {
                     comment = 'Сложение с нулем можно опустить'
                     return
                 }
+            } else if(node.type === TYPES.POWER) {
+                // console.log(node.args)
+
+                if(node.args[0].type === TYPES.CONSTANT) {
+                    if(node.args[0].meta.value === 1) {
+                        newExpr = '1'
+                        comment = 'Единица в любой степени — единица'
+                    } else if(node.args[0].meta.value === 0) {
+                        newExpr = '0'
+                        comment = 'Ноль в любой степени — ноль'
+                    }
+                } else if(node.args[1].type === TYPES.CONSTANT) {
+                    if(node.args[1].meta.value === 1) {
+                        comment = 'Единичную степень можно опустить'
+
+                        const arg = node.args[0]
+
+                        node.type = arg.type
+                        node.args = arg.args
+                        node.meta = arg.meta
+
+                        return
+                    } else if(node.args[1].meta.value === 0) {
+                        newExpr = '1'
+                        comment = 'Что угодно в нулевой степени — единица'
+                    }
+                }
             }
 
             if(newExpr) {

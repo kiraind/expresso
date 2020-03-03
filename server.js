@@ -97,7 +97,7 @@ function makeResponse(rawInput) {
     do {
         while(expression.normalizeStep());
 
-        console.log(expression)
+        // console.log(expression)
 
         steps.push({
             comment,
