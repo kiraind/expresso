@@ -3,21 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>expresso</title>
-
-    <link rel="stylesheet" href="main.css">
-
+    <title id="title">Экспрессо</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Pacifico&display=swap&subset=cyrillic');
+
+        body {
+            margin: 0;
+
+            font-family: Roboto, sans-serif;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            background-color: #6eeb43;
+        }
+
+        h1 {
+            font-family: 'Pacifico', cursive;
+            margin: 0;
+            padding: 0;
+            font-weight: normal;
+            font-size: 69px;
+            color: white;
+            text-shadow: 0 0 10px #00000008;
+            margin-bottom: 20px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        main {
+            width: calc(100% - 20px);
+            max-width: 900px;
+            margin: 0 auto;
+            margin-top: -21px;
+        }
+
+        #input-container {
+            position: relative;
+        }
+
+        #expression-inpt {
+            width: 100%;
+            max-width: calc(100% - 10px*2);
+            outline: none;
+            font-size: 20px;
+            line-height: 30px;
+            padding: 5px 10px;
+            border: 1px solid #8c8c8c;
+            border-radius: 3px;
+        }
+
+        #expression-inpt:focus {
+            box-shadow: 0 0 10px #00000026;
+        }
+
+        #enter-label {
+            position: absolute;
+            right: 5px;
+            top: calc(50% - 14px);
+        }
+
+        #enter-label>path {
+            fill-opacity: 0;
+            transition: fill-opacity 0.2s ease;
+        }
+
+        #enter-label.enter-tip>path {
+            fill-opacity: 1;
+        }
+
+        #error {
+            border: 1px solid red;
+            color: red;
+            margin-top: 20px;
+            padding: 10px 10px;
+            border-radius: 3px;
+        }
+        #error.hidden {
+            display: none;
+        }
+
+        #solution {
+            border: 1px solid #6deb43;
+            margin-top: 20px;
+            padding: 5px 10px;
+            border-radius: 3px;
+        }
+
+        #solution:empty {
+            display: none;
+        }
+
+
+        #steps {
+            margin-top: 30px;
+        }
+
+        .step {
+            margin-bottom: 30px;
+        }
+
+        .step-show {
+            display: flex;
+            align-items: center;
+            
+        }
+
+        .step-show-id {
+            width: 100px;
+            font-size: 16px;
+            color: #a2a2a2;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
+        .step-desc-p {
+            margin: 0 0 0 100px;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        @media screen and (max-width: 550px) {
+            .step-show-id {
+                width: 45px;
+                padding-left: 5px;
+                text-align: left;
+            }
+
+            .step-desc-p {
+                margin-left: 50px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
         <div>
-            <!-- <h1>&nbsp;expresso.js&nbsp;</h1> -->
+            <h1 id="logo">Экспрессо</h1>
         </div>
     </header>
     <main>
-        <div>
+        <div id="input-container">
+            <svg
+                id="enter-label"
+                xmlns="http://www.w3.org/2000/svg"
+                height="28"
+                width="28"
+                viewBox="0 0 24 24"
+            >
+                <path fill="#b5b5b5" d="M19 8v3H5.83l2.88-2.88c.39-.39.39-1.02 0-1.41-.39-.39-1.02-.39-1.41 0L2.71 11.3c-.39.39-.39 1.02 0 1.41L7.3 17.3c.39.39 1.02.39 1.41 0 .39-.39.39-1.02 0-1.41L5.83 13H20c.55 0 1-.45 1-1V8c0-.55-.45-1-1-1s-1 .45-1 1z"/>
+            </svg>
             <input id="expression-inpt" autofocus type="text" placeholder="Введите выражение">
         </div>
         <div id="error" class="hidden">
@@ -30,22 +171,56 @@
     </main>
 
     <script>
+        const title      = document.getElementById('title')
         const inpt       = document.getElementById('expression-inpt')
         const stepsEl    = document.getElementById('steps')
         const solutionEl = document.getElementById('solution')
         const errorEl    = document.getElementById('error')
+        const enterLabel = document.getElementById('enter-label')
 
-        inpt.addEventListener('keypress', async e => {
-            // console.log(katex)
+        inpt.addEventListener('keypress', e => {
+            const expr = inpt.value.trim()
 
             if(e.key !== 'Enter') {
                 return
             }
 
+            window.history.replaceState(null, null, `/?e=${encodeURIComponent(expr)}`)
+            title.innerText = `${expr} — Экспрессо`
+
+            enterLabel.classList.remove('enter-tip')
             hideError()
 
-            const expr = inpt.value
+            express(expr)
+        })
 
+        inpt.addEventListener('input', e => {
+            const expr = inpt.value.trim()
+
+            if(expr.length === 0) {
+                enterLabel.classList.remove('enter-tip')
+            } else {
+                enterLabel.classList.add('enter-tip')
+            }
+        })
+
+        window.onload = e => {
+            const urlParams = new URLSearchParams(window.location.search)
+            const expressionEncoded = urlParams.get('e')
+
+            if(expressionEncoded !== null) {
+                const expression = decodeURIComponent(expressionEncoded)
+                title.innerText = `${expression} — Экспрессо`
+
+                inpt.value = expression
+
+                express(expression)
+            }
+        }
+
+        document.getElementById('logo').onclick = e => window.location.href = '/'
+
+        async function express(expr) {
             const resp = await fetch(`/steps?e=${ encodeURIComponent(expr)}`)
             const steps = await resp.json()
 
@@ -53,8 +228,6 @@
                 displayError()
                 return
             }
-
-            console.log(steps)
 
             const solutionCode = steps.length === 1 ?
                 steps[0].expression : `${steps[0].expression} = ${steps[steps.length - 1].expression}`
@@ -89,8 +262,7 @@
             `).join('\n')
 
             stepsEl.innerHTML = stepsHtml
-        })
-
+        }
 
         function displayError() {
             errorEl.classList.remove('hidden')
