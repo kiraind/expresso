@@ -831,13 +831,15 @@ class Node {
                 node.meta = newNode.meta
             } else {
                 // go in depth
-                for(let i = 0; i < node.args.length; i += 1) {
-                    const arg = node.args[i]
-
-                    search(arg)
-
-                    if(comment) {
-                        return
+                if(node.args) {
+                    for(let i = 0; i < node.args.length; i += 1) {
+                        const arg = node.args[i]
+    
+                        search(arg)
+    
+                        if(comment) {
+                            return
+                        }
                     }
                 }
             }
