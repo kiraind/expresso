@@ -50,13 +50,13 @@
 
         #expression-inpt {
             width: 100%;
-            max-width: calc(100% - 10px*2);
+            max-width: calc(100% - 15px*2);
             outline: none;
             font-size: 20px;
             line-height: 30px;
-            padding: 5px 10px;
+            padding: 5px 15px;
             border: 1px solid #8c8c8c;
-            border-radius: 3px;
+            border-radius: 21px;
         }
 
         #expression-inpt:focus {
@@ -171,106 +171,130 @@
     </main>
 
     <script>
-        const title      = document.getElementById('title')
-        const inpt       = document.getElementById('expression-inpt')
-        const stepsEl    = document.getElementById('steps')
-        const solutionEl = document.getElementById('solution')
-        const errorEl    = document.getElementById('error')
-        const enterLabel = document.getElementById('enter-label')
+        class App {
+            constructor() {
+                // bind methods
+                this.onKeyPress = this.onKeyPress.bind(this)
+                this.onInput = this.onInput.bind(this)
+                this.displayError = this.displayError.bind(this)
+                this.hideError = this.hideError.bind(this)
+                this.clearState = this.clearState.bind(this)
+                this.express = this.express.bind(this)
 
-        inpt.addEventListener('keypress', e => {
-            const expr = inpt.value.trim()
+                // get elements
+                this.logo       = document.getElementById('logo')
+                this.title      = document.getElementById('title')
+                this.inpt       = document.getElementById('expression-inpt')
+                this.stepsEl    = document.getElementById('steps')
+                this.solutionEl = document.getElementById('solution')
+                this.errorEl    = document.getElementById('error')
+                this.enterLabel = document.getElementById('enter-label')
 
-            if(e.key !== 'Enter') {
-                return
+                // set listeners
+                this.inpt.addEventListener('keypress', this.onKeyPress)
+                this.inpt.addEventListener('input', this.onInput)
+                this.logo.addEventListener('click', this.clearState)
+
+                // load callback
+                window.addEventListener("load", () => {
+                    const urlParams = new URLSearchParams(window.location.search)
+                    const expressionEncoded = urlParams.get('e')
+
+                    if(expressionEncoded !== null) {
+                        const expression = decodeURIComponent(expressionEncoded)
+                        this.title.innerText = `${expression} — Экспрессо`
+
+                        this.inpt.value = expression
+
+                        this.express(expression)
+                    }
+                })
             }
 
-            window.history.replaceState(null, null, `/?e=${encodeURIComponent(expr)}`)
-            title.innerText = `${expr} — Экспрессо`
+            onKeyPress(e) {
+                const expr = this.inpt.value.trim()
 
-            enterLabel.classList.remove('enter-tip')
-            hideError()
-
-            express(expr)
-        })
-
-        inpt.addEventListener('input', e => {
-            const expr = inpt.value.trim()
-
-            if(expr.length === 0) {
-                enterLabel.classList.remove('enter-tip')
-            } else {
-                enterLabel.classList.add('enter-tip')
-            }
-        })
-
-        window.onload = e => {
-            const urlParams = new URLSearchParams(window.location.search)
-            const expressionEncoded = urlParams.get('e')
-
-            if(expressionEncoded !== null) {
-                const expression = decodeURIComponent(expressionEncoded)
-                title.innerText = `${expression} — Экспрессо`
-
-                inpt.value = expression
-
-                express(expression)
-            }
-        }
-
-        document.getElementById('logo').onclick = e => window.location.href = '/'
-
-        async function express(expr) {
-            const resp = await fetch(`/steps?e=${ encodeURIComponent(expr)}`)
-            const steps = await resp.json()
-
-            if(steps.error) {
-                displayError()
-                return
-            }
-
-            const solutionCode = steps.length === 1 ?
-                steps[0].expression : `${steps[0].expression} = ${steps[steps.length - 1].expression}`
-
-            const solutionHtml = katex.renderToString(
-                solutionCode,
-                {
-                    throwOnError: false,
-                    maxSize: Infinity,
-                    displayMode: true
+                if(e.key !== 'Enter') {
+                    return
                 }
-            )
 
-            solutionEl.innerHTML = solutionHtml
+                window.history.pushState(null, null, `/?e=${encodeURIComponent(expr)}`)
+                this.title.innerText = `${expr} — Экспрессо`
 
-            const stepsHtml = steps.map(step => `
-                <div class="step">
-                    <div class="step-desc">
-                        <p class="step-desc-p">${step.comment}:</p>
+                this.enterLabel.classList.remove('enter-tip')
+                this.hideError()
+
+                this.express(expr)
+            }
+
+            onInput(e) {
+                const expr = this.inpt.value.trim()
+
+                if(expr.length === 0) {
+                    this.enterLabel.classList.remove('enter-tip')
+                } else {
+                    this.enterLabel.classList.add('enter-tip')
+                }
+            }
+
+            displayError() {
+                this.errorEl.classList.remove('hidden')
+            }
+
+            hideError() {
+                this.errorEl.classList.add('hidden')
+            }
+
+            clearState() {
+                window.location.href = '/'
+            }
+
+            async express(expr) {
+                const resp = await fetch(`/steps?e=${ encodeURIComponent(expr)}`)
+                const steps = await resp.json()
+
+                if(steps.error) {
+                    displayError()
+                    return
+                }
+
+                const solutionCode = steps.length === 1 ?
+                    steps[0].expression : `${steps[0].expression} = ${steps[steps.length - 1].expression}`
+
+                const solutionHtml = katex.renderToString(
+                    solutionCode,
+                    {
+                        throwOnError: false,
+                        maxSize: Infinity,
+                        displayMode: true
+                    }
+                )
+
+                this.solutionEl.innerHTML = solutionHtml
+
+                const stepsHtml = steps.map(step => `
+                    <div class="step">
+                        <div class="step-desc">
+                            <p class="step-desc-p">${step.comment}:</p>
+                        </div>
+                        <div class="step-show">
+                            <div class="step-show-id">(${step.step})</div>  
+                            <div class="step-show-content">${
+                                katex.renderToString(step.expression, {
+                                    throwOnError: false,
+                                    maxSize: Infinity,
+                                    displayMode: true
+                                })
+                            }</div>   
+                        </div>
                     </div>
-                    <div class="step-show">
-                        <div class="step-show-id">(${step.step})</div>  
-                        <div class="step-show-content">${
-                            katex.renderToString(step.expression, {
-                                throwOnError: false,
-                                maxSize: Infinity,
-                                displayMode: true
-                            })
-                        }</div>   
-                    </div>
-                </div>
-            `).join('\n')
+                `).join('\n')
 
-            stepsEl.innerHTML = stepsHtml
+                this.stepsEl.innerHTML = stepsHtml
+            }
         }
 
-        function displayError() {
-            errorEl.classList.remove('hidden')
-        }
-
-        function hideError() {
-            errorEl.classList.add('hidden')
-        }
+        const app = new App()
     </script>
 </body>
 </html>

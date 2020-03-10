@@ -21,8 +21,6 @@ http.createServer(function (request, response) {
             return
         }
 
-        console.log(parsedUrl.query)
-
         const expr = decodeURIComponent(parsedUrl.query['e'])
 
         try {
@@ -40,8 +38,6 @@ http.createServer(function (request, response) {
             }`)
             response.end()
         }
-        
-        
 
         return
     }
