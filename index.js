@@ -30,7 +30,7 @@ http.createServer(function (request, response) {
             response.write(data)
             response.end()
         } catch(e) {
-            console.log(e)
+            // console.log(e)
 
             response.writeHead(200, { 'Content-Type': 'application/json' })
             response.write(`{
@@ -92,8 +92,6 @@ function makeResponse(rawInput) {
 
     do {
         while(expression.normalizeStep());
-
-        // console.log(expression)
 
         steps.push({
             comment,

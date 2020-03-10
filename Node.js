@@ -3,6 +3,7 @@ const {
     OPERATORS,
 } = require('./chars.js')
 const diffRules = require('./diffRules.js')
+const functionResolvers = require('./functionResolvers.js')
 
 const number_r = /^(\d)*(\.(\d)+)?$/
 const variable_r = /^[A-Za-z]+$/
@@ -63,7 +64,7 @@ class Node {
                     ...node.meta,
                 }
             } else {
-                console.log(type)
+                // console.log(type)
                 throw new Error()
             }
 
@@ -489,7 +490,11 @@ class Node {
                 node.type === TYPES.VARIABLE
             ) {
                 return
-            } else if(node.type === TYPES.MULTIPLY || node.type === TYPES.ADD) {
+            } else if(
+                node.type === TYPES.MULTIPLY ||
+                node.type === TYPES.ADD ||
+                node.type === TYPES.POWER
+            ) {
                 if(
                     // count constants
                     node.args.reduce(
@@ -561,6 +566,36 @@ class Node {
                         node.meta.powers = powers                    
                         comment = 'Умножение / деление'
                         return
+                    } else if(node.type === TYPES.POWER) {
+                        // a^x
+                        
+                        const a = node.args[0].meta.value
+                        const x = node.args[1].meta.value
+
+                        node.type = TYPES.CONSTANT
+                        delete node.args
+                        node.meta = {
+                            value: Math.pow(a, x)
+                        }       
+
+                        comment = 'Возведение в степень'
+                        return
+                    }
+                }
+            } else if(node.type === TYPES.FUNCTION) {
+                const arg = node.args[0]
+
+                if(arg.type === TYPES.CONSTANT) {
+                    const fn = node.meta.name
+                    const x = arg.meta.value
+
+                    if(fn in functionResolvers) {
+                        const res = functionResolvers[fn](x)
+
+                        if(!isNaN(res)) {
+                            newExpr = `${res}`
+                            comment = `Вычисление значения <i>${fn}(${arg.toString()})</i>`
+                        }
                     }
                 }
             }
