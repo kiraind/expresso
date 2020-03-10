@@ -799,7 +799,7 @@ class Node {
                 const fn = node.args[0]
                 let newExpr
 
-                if(fn.type === TYPES.CONSTANT) {
+                if(fn.type === TYPES.CONSTANT || fn.resolved) {
                     [newExpr, comment] = diffRules['const'](null, fn.meta)
                 } else if(fn.type === TYPES.VARIABLE) {
                     [newExpr, comment] = diffRules['var'](null, fn.meta)
