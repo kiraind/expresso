@@ -219,7 +219,7 @@
                     return
                 }
 
-                window.history.pushState(null, null, `/?e=${encodeURIComponent(expr)}`)
+                window.history.pushState(null, null, `/expresso?e=${encodeURIComponent(expr)}`)
                 this.title.innerText = `${expr} — Экспрессо`
 
                 this.enterLabel.classList.remove('enter-tip')
