@@ -365,8 +365,8 @@ class Node {
             this.args = node.args
             this.meta = node.meta
         } else {
-            console.log('"' + node + '"')
-            console.log( processed )
+            // console.log('"' + node + '"')
+            // console.log( processed )
             throw new Error('Parsing error')
         }
     }
