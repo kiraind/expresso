@@ -16,7 +16,7 @@ http.createServer(function (request, response) {
 
     const uri = parsedUrl.pathname
 
-    if(uri === '/steps') {
+    if(uri === '/expresso-steps') {
         if(!parsedUrl.query['e']) {
             return
         }

@@ -251,7 +251,7 @@
             }
 
             async express(expr) {
-                const resp = await fetch(`/steps?e=${ encodeURIComponent(expr)}`)
+                const resp = await fetch(`/expresso-steps?e=${ encodeURIComponent(expr)}`)
                 const steps = await resp.json()
 
                 if(steps.error) {
