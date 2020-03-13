@@ -45,6 +45,16 @@ module.exports = {
     '*': (args, meta) => {
         const { powers } = meta
 
+        if(args.length === 1 && !powers[0]) {
+            // 1/f(x)
+            const f = args.toString()
+
+            return [
+                `-( (${f})' / ((${f})^2) )`,
+                `Производная обратного числа`
+            ]
+        }
+
         const productDerivative = factors => {
             const addendsStrings = []
             
