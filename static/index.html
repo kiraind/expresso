@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
 
@@ -35,9 +35,23 @@
             </svg>
             <input id="expression-inpt" autofocus type="text" placeholder="Введите выражение">
         </div>
+
         <div id="error" class="hidden"></div>
+        
         <div id="solution"></div>
+
         <div id="steps"></div>
+        <template id="step-template">
+            <div class="step">
+                <div class="step-desc">
+                    <p class="step-desc-p"></p>
+                </div>
+                <div class="step-show">
+                    <div class="step-show-id"></div>  
+                    <div class="step-show-content"></div>   
+                </div>
+            </div>
+        </template>
     </main>
     <footer>
         @kiraind |

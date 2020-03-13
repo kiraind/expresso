@@ -1,11 +1,12 @@
 // UI ELEMENTS
-const logoEl     = document.getElementById('logo')
-const titleEl    = document.getElementById('title')
-const inputEl    = document.getElementById('expression-inpt')
-const stepsEl    = document.getElementById('steps')
-const solutionEl = document.getElementById('solution')
-const errorEl    = document.getElementById('error')
-const enterLabel = document.getElementById('enter-label')
+const logoEl       = document.getElementById('logo')
+const titleEl      = document.getElementById('title')
+const inputEl      = document.getElementById('expression-inpt')
+const stepsEl      = document.getElementById('steps')
+const solutionEl   = document.getElementById('solution')
+const errorEl      = document.getElementById('error')
+const enterLabel   = document.getElementById('enter-label')
+const stepTemplate = document.getElementById('step-template')
 
 // STORES
 
@@ -147,25 +148,37 @@ function renderSteps(steps) {
 
     solutionEl.innerHTML = solutionHtml
 
-    const stepsHtml = steps.map(step => `
-        <div class="step">
-            <div class="step-desc">
-                <p class="step-desc-p">${step.comment}:</p>
-            </div>
-            <div class="step-show">
-                <div class="step-show-id">(${step.step})</div>  
-                <div class="step-show-content">${
-                    katex.renderToString(step.expression, {
-                        throwOnError: false,
-                        maxSize: Infinity,
-                        displayMode: true
-                    })
-                }</div>   
-            </div>
-        </div>
-    `).join('\n')
+    // fragment of steps
+    const stepsFragment = document.createDocumentFragment()
 
-    stepsEl.innerHTML = stepsHtml
+    // render steps
+    steps.forEach(step => {
+        // clone node
+        const stepEl = document.importNode(stepTemplate.content, true)
+
+        // get children
+        const idEl   = stepEl.querySelector('.step-show-id')
+        const descEl = stepEl.querySelector('.step-desc-p')
+        const contEl = stepEl.querySelector('.step-show-content')
+
+        // fill in content
+        idEl.innerHTML   = '(' + step.step + ')'
+        descEl.innerHTML = step.comment + ':'
+        contEl.innerHTML = katex.renderToString(
+            step.expression,
+            {
+                throwOnError: false,
+                maxSize: Infinity,
+                displayMode: true
+            }
+        )
+
+        stepsFragment.appendChild(stepEl)
+    })
+
+    // clear steps
+    stepsEl.innerHTML = ''
+    stepsEl.appendChild(stepsFragment)
 }
 
 function renderError(error) {
