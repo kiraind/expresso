@@ -399,10 +399,22 @@ class Node {
             } else if(node.type === TYPES.MULTIPLY || node.type === TYPES.ADD) {
                 if(node.args.length === 1) {
                     if(node.type === TYPES.MULTIPLY && !node.meta.powers[0]) {
-                        // skip
+                        // skip for 1/f(x)
                     } else {
-                        comment = 'Normalize'
-                        newExpr = node.args[0].toString()
+                        comment = 'Normalize: single argument resolution'
+
+                        if(node.type === TYPES.MULTIPLY) {
+                            newExpr = node.args[0].toString()
+                        } else {
+                            // if addition
+
+                            if(node.meta.signs[0]) {
+                                // if positive
+                                newExpr = node.args[0].toString()
+                            } else {
+                                newExpr = `-(${node.args[0].toString()})`
+                            }
+                        }
                     }
                 } else {
                     // merge nested multiplications
