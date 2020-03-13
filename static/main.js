@@ -113,6 +113,8 @@ inputEl.addEventListener('keypress', e => {
         userUpdateQueryEvent( inputEl.value )
     }
 })
+enterLabel.addEventListener('click', () => userUpdateQueryEvent(inputEl.value) )
+logoEl.addEventListener('click', () => window.location.href = '/')
 
 // FUNCTIONS
 
