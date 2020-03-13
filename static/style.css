@@ -94,6 +94,7 @@ main {
     margin-top: 20px;
     padding: 5px 10px;
     border-radius: 3px;
+    overflow: auto;
 }
 
 #solution:empty {
@@ -112,15 +113,20 @@ main {
 .step-show {
     display: flex;
     align-items: center;
-    
+}
+
+.step-show-content {
+    overflow: auto;
 }
 
 .step-show-id {
-    width: 100px;
+    width: 90px;
     font-size: 16px;
     color: #a2a2a2;
     text-align: center;
     margin-bottom: 5px;
+    margin-right: 10px;
+    flex-shrink: 0;
 }
 
 .step-desc-p {
@@ -131,7 +137,7 @@ main {
 
 @media screen and (max-width: 550px) {
     .step-show-id {
-        width: 45px;
+        width: 35px;
         padding-left: 5px;
         text-align: left;
     }
