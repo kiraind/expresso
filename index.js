@@ -3,6 +3,8 @@ const url = require('url')
 const path = require('path')
 const fs = require('fs')
 
+const endpoint = 'expresso'
+
 const Node = require('./Node.js')
 
 if(!process.argv[2]) {
@@ -12,11 +14,21 @@ if(!process.argv[2]) {
 const port = parseInt(process.argv[2], 10)
 
 http.createServer(function (request, response) {
+    // true for parsing query
     const parsedUrl = url.parse(request.url, true)
 
-    const uri = parsedUrl.pathname
+    const requestUri = parsedUrl.pathname
+    
+    const uriParts = requestUri.split('/').filter(s => s.length !== 0)
 
-    if( uri.endsWith('/steps') ) {
+    if(uriParts[0] === endpoint) {
+        uriParts.shift()
+    }
+
+    const uri = uriParts.join('/')
+
+    // handle api endpoints
+    if( uri === 'steps' ) {
         if(!parsedUrl.query['e']) {
             return
         }
@@ -32,33 +44,49 @@ http.createServer(function (request, response) {
         } catch(e) {
             // console.log(e)
 
-            response.writeHead(200, { 'Content-Type': 'application/json' })
-            response.write(`{
-                "error": true
-            }`)
+            response.writeHead(422, { 'Content-Type': 'application/json' })
+            response.write(`[]`)
             response.end()
         }
 
         return
     }
 
-    const filename = path.join(process.cwd(), 'static', '/index.html')
+    let filename = path.join(process.cwd(), 'static', uri)
 
-    fs.readFile(filename, 'binary', function (err, file) {
-        if (err) {
-            response.writeHead(500, { 'Content-Type': 'text/plain' })
-            response.write(err + '\n')
+    const contentTypesByExtension = {
+        '.html': 'text/html',
+        '.css': 'text/css',
+        '.js': 'text/javascript'
+    }
+
+    fs.exists(filename, function (exists) {
+        if (!exists) {
+            response.writeHead(404, { 'Content-Type': 'text/plain' })
+            response.write('404 Not Found\n')
             response.end()
             return
         }
 
-        const headers = {}
+        if (fs.statSync(filename).isDirectory()) filename += '/index.html'
 
-        headers['Content-Type'] = 'text/html'
-        
-        response.writeHead(200, headers)
-        response.write(file, 'binary')
-        response.end()
+        fs.readFile(filename, 'binary', function (err, file) {
+            if (err) {
+                response.writeHead(500, { 'Content-Type': 'text/plain' })
+                response.write(err + '\n')
+                response.end()
+                return
+            }
+
+            const headers = {}
+            const contentType = contentTypesByExtension[path.extname(filename)]
+            if (contentType) {
+                headers['Content-Type'] = contentType
+            }
+            response.writeHead(200, headers)
+            response.write(file, 'binary')
+            response.end()
+        })
     })
 }).listen(port)
 

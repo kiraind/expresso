@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css?family=Pacifico&display=swap&subset=cyrillic');
+
+body {
+    margin: 0;
+
+    font-family: Roboto, sans-serif;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    background-color: #6eeb43;
+}
+
+h1 {
+    font-family: 'Pacifico', cursive;
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+    font-size: 69px;
+    color: white;
+    text-shadow: 0 0 10px #00000008;
+    margin-bottom: 20px;
+    user-select: none;
+    cursor: pointer;
+}
+
+main {
+    width: calc(100% - 20px);
+    max-width: 900px;
+    margin: 0 auto;
+    margin-top: -21px;
+}
+
+#input-container {
+    position: relative;
+}
+
+#expression-inpt {
+    width: 100%;
+    max-width: calc(100% - 15px*2);
+    outline: none;
+    font-size: 20px;
+    line-height: 30px;
+    padding: 5px 15px;
+    border: 1px solid #8c8c8c;
+    border-radius: 21px;
+}
+
+#expression-inpt:focus {
+    box-shadow: 0 0 10px #00000026;
+}
+
+#enter-label {
+    position: absolute;
+    right: 10px;
+    top: calc(50% - 13px);
+}
+
+#enter-label>path {
+    fill-opacity: 0;
+    transition: fill-opacity 0.2s ease;
+}
+
+#enter-label.enter-tip>path {
+    fill-opacity: 1;
+}
+
+#error {
+    border: 1px solid red;
+    color: red;
+    margin-top: 20px;
+    padding: 10px 10px;
+    border-radius: 3px;
+}
+#error.hidden {
+    display: none;
+}
+
+#solution {
+    border: 1px solid #6deb43;
+    margin-top: 20px;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+#solution:empty {
+    display: none;
+}
+
+
+#steps {
+    margin-top: 30px;
+}
+
+.step {
+    margin-bottom: 30px;
+}
+
+.step-show {
+    display: flex;
+    align-items: center;
+    
+}
+
+.step-show-id {
+    width: 100px;
+    font-size: 16px;
+    color: #a2a2a2;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.step-desc-p {
+    margin: 0 0 0 100px;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+@media screen and (max-width: 550px) {
+    .step-show-id {
+        width: 45px;
+        padding-left: 5px;
+        text-align: left;
+    }
+
+    .step-desc-p {
+        margin-left: 50px;
+    }
+}
