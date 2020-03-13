@@ -15,6 +15,14 @@ const stepsStore = effector.createStore([])
 const expressionStore = effector.createStore( getInitialExpression() )
 // Current inputted expression
 const currentExpressionStore = effector.createStore( getInitialExpression() )
+// Boolean store for defining if enter tip should be dislayed
+const needEnterTipStore = effector.combine(
+    {
+        expression: expressionStore,
+        currentExpression: currentExpressionStore
+    },
+    ({ expression, currentExpression }) => !!currentExpression && currentExpression !== expression
+)
 // Store for displayed error
 const shownErrorStore = effector.createStore('')
 
@@ -90,8 +98,8 @@ expressionStore.watch(expression => {
         titleEl.innerText = `Экспрессо`
     }
 })
-currentExpressionStore.watch(currentExpression => {
-    if( currentExpression && currentExpression !== getInitialExpression() ) {
+needEnterTipStore.watch(needEnterTip => {
+    if(needEnterTip) {
         enterLabel.classList.add('enter-tip')
     } else {
         enterLabel.classList.remove('enter-tip')
@@ -103,8 +111,6 @@ inputEl.addEventListener('input', () => userInputQueryEvent(inputEl.value) )
 inputEl.addEventListener('keypress', e => {
     if(e.key === 'Enter') {
         userUpdateQueryEvent( inputEl.value )
-
-        enterLabel.classList.remove('enter-tip')
     }
 })
 
