@@ -38,6 +38,8 @@ main {
     max-width: 900px;
     margin: 0 auto;
     margin-top: -21px;
+
+    min-height: calc(100vh - 200px - 2*16px);
 }
 
 #input-container {
@@ -137,4 +139,15 @@ main {
     .step-desc-p {
         margin-left: 50px;
     }
+}
+
+footer {
+    text-align: center;
+    font-size: 16px;
+    margin: 16px 0;
+    color: #414141;
+}
+
+footer a {
+    color: #2a2a2a;
 }

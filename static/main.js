@@ -114,7 +114,7 @@ inputEl.addEventListener('keypress', e => {
     }
 })
 enterLabel.addEventListener('click', () => userUpdateQueryEvent(inputEl.value) )
-logoEl.addEventListener('click', () => window.location.href = '/')
+logoEl.addEventListener('click', () => window.location.href = '/expresso')
 
 // FUNCTIONS
 
