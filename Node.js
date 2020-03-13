@@ -945,6 +945,24 @@ class Node {
     }
 
     toKatex() {
+        const wrap = node => {
+            if(
+                node.type === TYPES.MULTIPLY && (
+                    (
+                        node.meta.powers.some(pwr => pwr) &&
+                        node.meta.powers.some(pwr => !pwr)
+                    ) || (
+                        node.meta.powers.length === 1 &&
+                        !node.meta.powers[0]
+                    )   
+                )
+            ) {
+                return `\\bigg(${node.toKatex()}\\bigg)`
+            } else {
+                return `(${node.toKatex()})`
+            }
+        }
+
         if(this.type === TYPES.VARIABLE) {
             return this.meta.name
         } else if(this.type === TYPES.CONSTANT) {
@@ -956,13 +974,13 @@ class Node {
                 return `\\sqrt{${this.args[0].toKatex()}}`
             }
 
-            return `${this.meta.name}(${this.args[0].toKatex()})`
+            return `${this.meta.name}${wrap(this.args[0])}`
         } else if(this.type === TYPES.DERIVATIVE) {
-            return `(${this.args[0].toKatex()})'`
+            return `${wrap(this.args[0])}'`
         } else if(this.type === TYPES.NEGATE) {
             const arg = this.args[0]
             if( arg.type === TYPES.ADD ) {
-                return `-(${arg.toKatex()})`
+                return `-${wrap(arg)}`
             } else {
                 return `-${arg.toKatex()}`
             }
@@ -970,8 +988,8 @@ class Node {
             const arg1 = this.args[0]
             const arg2 = this.args[1]
 
-            const arg1s = arg1.type <= TYPES.POWER ? `(${arg1.toKatex()})` : arg1.toKatex()
-            const arg2s = arg2.type <  TYPES.POWER ? `(${arg2.toKatex()})` : arg2.toKatex()
+            const arg1s = arg1.type <= TYPES.POWER ? wrap(arg1) : arg1.toKatex()
+            const arg2s = arg2.type <  TYPES.POWER ? wrap(arg2) : arg2.toKatex()
 
             return `${arg1s}^{${arg2s}}`
         } else if(this.type === TYPES.ADD) {
@@ -988,7 +1006,7 @@ class Node {
                     }
                 }
 
-                s += arg.type === TYPES.ADD ? `(${arg.toKatex()})` : arg.toKatex()
+                s += arg.type === TYPES.ADD ? wrap(arg) : arg.toKatex()
 
                 if(i !== this.args.length - 1) {
                     s += ' '
